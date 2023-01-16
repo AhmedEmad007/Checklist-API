@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const { type } = require("express/lib/response");
+// const { joiPasswordExtendCore } = require('joi-password');s
+
 const { joiPassword } = require("joi-password");
 
 // *schema like model of user
@@ -36,7 +38,18 @@ function validateUser(user) {
       .minOfUppercase(1)
       .minOfNumeric(1)
       .noWhiteSpaces()
-      .required(),
+      .required()
+      .messages({
+        "password.minOfUppercase":
+          "{#label} should contain at least {#min} uppercase character",
+        "password.minOfSpecialCharacters":
+          "{#label} should contain at least {#min} special character",
+        "password.minOfLowercase":
+          "{#label} should contain at least {#min} lowercase character",
+        "password.minOfNumeric":
+          "{#label} should contain at least {#min} numeric character",
+        "password.noWhiteSpaces": "{#label} should not contain white spaces",
+      }),
 
     department: Joi.string()
       .min(3)
@@ -58,7 +71,11 @@ function validateUserLogin(user) {
       .required()
       .trim(),
 
-    password: joiPassword.string().noWhiteSpaces().required(),
+    password: joiPassword
+      .string()
+      .noWhiteSpaces()
+      .required()
+     ,
   }).options({ abortEarly: false });
 
   return JoiSchema.validate(user);

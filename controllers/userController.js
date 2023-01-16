@@ -41,17 +41,22 @@ const userCtrl = {
     } = req.body;
     // console.log(userName.replace(/\s+/g, ''))
     //   let userNameCheck =userName.replace(/\s+/g, '')
-    console.log(phoneId);
 
     const validateError = validateUser(req.body);
 
     //* if validate error just send to user an error message
+    let errors = [];
+    for(i=0;i<validateError.error.details.length;i++){
+      errors[i] = validateError.error.details[i].message;
+    }
+    console.log(errors);
+    console.log(validateError.error)
     if (validateError.error) {
       return res
         .status(400)
         .json({
           status: "false",
-          message: validateError.error.details[0].message,
+          message: errors,
         });
     }
 
@@ -100,17 +105,24 @@ const userCtrl = {
 
   login: async (req, res) => {
     //* take the inputs from user and validate them
-    const { userName, email, password: plainTextPassword } = req.body;
+    const {  email, password: plainTextPassword } = req.body;
 
     const validateError = validateUserLogin(req.body);
 
+
     //* if validate error just send to user an error message
+    console.log('error',validateError.error)
+    let errors = [];
+    for(i=0;i<validateError.error.details.length;i++){
+      errors[i] = validateError.error.details[i].message;
+    }
+    console.log(errors);
     if (validateError.error) {
       return res
-        .status(400)
+        .status(400) 
         .json({
-          status: "false",
-          message: validateError.error.details[0].message,
+          status: false,
+          message: errors,
         });
     }
 
