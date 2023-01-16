@@ -46,12 +46,13 @@ const userCtrl = {
 
     //* if validate error just send to user an error message
     let errors = [];
-    for(i=0;i<validateError.error.details.length;i++){
-      errors[i] = validateError.error.details[i].message;
-    }
-    console.log(errors);
-    console.log(validateError.error)
+    
     if (validateError.error) {
+      for(i=0;i<validateError.error.details.length;i++){
+        errors[i] = validateError.error.details[i].message;
+      }
+      console.log(errors);
+      console.log(validateError.error)
       return res
         .status(400)
         .json({
@@ -113,11 +114,12 @@ const userCtrl = {
     //* if validate error just send to user an error message
     console.log('error',validateError.error)
     let errors = [];
-    for(i=0;i<validateError.error.details.length;i++){
-      errors[i] = validateError.error.details[i].message;
-    }
-    console.log(errors);
+
     if (validateError.error) {
+      for(i=0;i<validateError.error.details.length;i++){
+        errors[i] = validateError.error.details[i].message;
+      }
+      console.log(errors);
       return res
         .status(400) 
         .json({
