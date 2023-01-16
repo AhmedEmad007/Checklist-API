@@ -1,0 +1,300 @@
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const Users = require("../models/user");
+const jwt = require("jsonwebtoken");
+const { validateUser } = require("../models/user");
+const _ = require("lodash");
+const { validateUserLogin } = require("../models/user");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+
+const { CLIENT_URL } = process.env;
+
+const userCtrl = {
+  getUserId: async (req, res) => {
+    try {
+      //* find the user info by his id and not show the password in response
+
+      const user = await Users.findOne({ _id: ObjectId(req.params.id) })
+        .populate("checklist", "-__v")
+        .select("-password -__v ");
+      console.log(req.params.id);
+      console.log(user);
+      return res
+        .status(200)
+        .json({ status: "ok", message: "get user success", profile: user });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ status: false, message: error.message });
+    }
+  },
+
+  register: async (req, res) => {
+    //* take the inputs from user and validate them
+    //* register by phone or userName just change email below to phone or userName
+    const {
+      userName,
+      email,
+      password: plainTextPassword,
+      phone,
+      phoneId,
+    } = req.body;
+    // console.log(userName.replace(/\s+/g, ''))
+    //   let userNameCheck =userName.replace(/\s+/g, '')
+    console.log(phoneId);
+
+    const validateError = validateUser(req.body);
+
+    //* if validate error just send to user an error message
+    if (validateError.error) {
+      return res
+        .status(400)
+        .json({
+          status: "false",
+          message: validateError.error.details[0].message,
+        });
+    }
+
+    //* check in database by email
+    //* register by phone or userName just change email below to phone or userName
+    let user = await Users.findOne({ email }).lean();
+
+    //* if exist return an error messge
+    if (user) {
+      return res
+        .status(400)
+        .json({ status: false, message: "email already in use" });
+    }
+    try {
+      //* take from user userName , email and password and not care for any value else
+      user = new Users(_.pick(req.body, ["userName", "email", "password"]));
+      console.log(phoneId);
+
+      //* crypt the password using bcrypt package
+      user.password = await bcrypt.hash(plainTextPassword, 10);
+      //   user.userName = userNameCheck
+      //* generate token that have his id
+      const token = jwt.sign({ id: user.id }, "privateKey");
+
+      //* then save the user
+      await user.save();
+
+      console.log(user);
+
+      //* send his token in header and his data in body
+      // return res.header('x-auth-token', token).json(_.pick(user, ['_id', 'userName', 'email','phone','token']),token)
+      return res
+        .status(200)
+        .json({
+          status: true,
+          message: "Register Success",
+          id: user._id,
+          userName: user.userName,
+          email: user.email,
+          token: token,
+        });
+    } catch (error) {
+      return res.status(500).json({ status: "false", error: error.message });
+    }
+  },
+
+  login: async (req, res) => {
+    //* take the inputs from user and validate them
+    const { userName, email, password: plainTextPassword } = req.body;
+
+    const validateError = validateUserLogin(req.body);
+
+    //* if validate error just send to user an error message
+    if (validateError.error) {
+      return res
+        .status(400)
+        .json({
+          status: "false",
+          message: validateError.error.details[0].message,
+        });
+    }
+
+    //* check in database by email
+    let user = await Users.findOne({ email }).lean();
+
+    //* if not exist return an error messge
+    if (!user) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Invalid email or password" });
+    }
+
+    try {
+      //* compare between password and crypted password of user
+      const checkPassword = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+      console.log(checkPassword);
+      //* if password doesnt match return to user an error message
+      if (!checkPassword) {
+        return res
+          .status(400)
+          .json({ status: false, message: "Invalid email or password" });
+      }
+
+      //* generate token that have his id and if admin or not
+      const token = jwt.sign(
+        { id: user._id, isAdmin: user.isAdmin },
+        "privateKey"
+      );
+
+      console.log(token);
+      return res
+        .status(200)
+        .json({
+          status: "ok",
+          message: "Login Success",
+          token: token,
+          isAdmin: user.isAdmin,
+        });
+    } catch (error) {
+      return res.status(500).json({ status: false, message: error.message });
+    }
+  },
+
+  profile: async (req, res) => {
+    const token = req.header("x-auth-token");
+    try {
+      const user = jwt.verify(token, "privateKey");
+      console.log(user);
+      const id = user.id;
+      console.log(id);
+
+      //* find the user info by his id and not show the password at response
+      const profile = await Users.findById(id)
+        .populate("checklist", "-__v")
+        .select("-password -__v ");
+      console.log(req.params.id);
+      console.log(profile);
+      return res
+        .status(200)
+        .json({ status: "ok", message: "Profile", profile });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ status: false, message: error.message });
+    }
+  },
+
+  allUsers: async (req, res) => {
+    try {
+      const users = await Users.find()
+        .populate("checklist", "-__v -password ")
+        .select("-password -__v ");
+      return res
+        .status(200)
+        .json({ status: true, message: "get users", users });
+    } catch (err) {
+      return res.status(500).json({ status: false, message: err.message });
+    }
+  },
+
+  getUser: async (req, res) => {
+    let search = req.params.search;
+    try {
+      const users = await Users.find({ userName: search })
+        .populate("checklist")
+        .select("-password -__v ");
+      return res.status(200).json({ status: true, message: "get user", users });
+    } catch (err) {
+      return res.status(500).json({ status: false, message: err.message });
+    }
+  },
+
+  getUserCount: async (req, res) => {
+    let search = req.params.search;
+    try {
+      const users = await Users.count();
+      return res.status(200).json({ status: true, message: "get user", users });
+    } catch (err) {
+      return res.status(500).json({ status: false, message: err.message });
+    }
+  },
+
+  changePassword: async (req, res) => {
+    //! take the password from user and validate it
+    const { oldPassword: oldPassword, password: plainTextPassword } = req.body;
+
+    //? take the token from header
+    const token = req.header("x-auth-token");
+
+    //! validate the password if not string
+    if (!plainTextPassword || typeof plainTextPassword !== "string") {
+      return res
+        .status(200)
+        .json({ status: false, message: "Invalid password1" });
+    }
+    //! validate the password if less than 8 char
+    if (plainTextPassword.length < 8) {
+      return res.status(200).json({
+        status: false,
+        message: "Password too small. Should be atleast 8 characters",
+      });
+    }
+
+    try {
+      //* decode the token to get user data
+      const user = jwt.verify(token, "privateKey");
+      /*  console.log(user) */
+
+      //* get user id
+      const userId = user.id;
+      console.log(userId);
+
+      //* check in database by email
+      let userCheck = await Users.findById(ObjectId(userId)).lean();
+      console.log(userCheck._id);
+
+      console.log(userCheck.password);
+
+      //* compare between password and crypted password of user
+      const checkPassword = await bcrypt.compare(
+        oldPassword,
+        userCheck.password
+      );
+
+      console.log(checkPassword);
+      console.log(oldPassword);
+      console.log(userCheck.password);
+
+      //* if password doesnt match return to user an error message
+      if (!checkPassword) {
+        return res
+          .status(200)
+          .json({ status: false, message: "Invalid password2" });
+      }
+
+      //* incrypt new password
+      const newPassword = await bcrypt.hash(plainTextPassword, 10);
+
+      //* find the user by id and change the password
+      await Users.updateOne(
+        { _id: userId },
+        {
+          $set: { password: newPassword },
+        }
+      );
+      console.log(userId);
+      console.log(newPassword);
+
+      return res
+        .status(200)
+        .json({ status: "ok", message: "password changed" });
+    } catch (error) {
+      console.log(error);
+      return res.json({ status: false, message: error.message });
+    }
+  },
+};
+const createAccessToken = (payload) => {
+  return jwt.sign(payload, `${process.env.ACCESS_TOKEN_SECRET}`, {
+    expiresIn: "15m",
+  });
+};
+
+module.exports = userCtrl;
