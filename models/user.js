@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const joi = require("joi");
 
-const { joiPassword } = require("joi-password");
-// const joiPassword = joi.extend(joiPasswordExtendCore);
+const { joiPasswordExtendCore } = require("joi-password");
+const joiPassword = joi.extend(joiPasswordExtendCore);
 
 // *schema like model of user
 const UserSchema = new mongoose.Schema({

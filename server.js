@@ -15,6 +15,8 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 
 //* mongoose connection
+mongoose.set('strictQuery', true);
+
 mongoose
   .connect(process.env.DATABASE_URL, {
     useNewUrlParser: true,
