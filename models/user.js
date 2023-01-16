@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-const Joi = require("joi");
+const  Joi  = require("joi");
 const jwt = require("jsonwebtoken");
 const { type } = require("express/lib/response");
 // const { joiPasswordExtendCore } = require('joi-password');s
 
-const { joiPassword } = require("joi-password");
+const  JoiPassword  = require("joi-password");
 
 // *schema like model of user
 const UserSchema = new mongoose.Schema({
@@ -31,7 +31,7 @@ function validateUser(user) {
       .required()
       .trim(),
 
-    password: joiPassword
+    password: JoiPassword.joiPassword
       .string()
       .minOfSpecialCharacters(1)
       .minOfLowercase(5)
@@ -71,7 +71,7 @@ function validateUserLogin(user) {
       .required()
       .trim(),
 
-    password: joiPassword
+    password: JoiPassword.joiPassword
       .string()
       .noWhiteSpaces()
       .required()
