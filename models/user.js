@@ -1,10 +1,8 @@
 const mongoose = require("mongoose");
-const  Joi  = require("joi");
-const jwt = require("jsonwebtoken");
-const { type } = require("express/lib/response");
-// const { joiPasswordExtendCore } = require('joi-password');s
+const joi = require("joi");
 
-const  JoiPassword  = require("joi-password");
+const { joiPassword } = require("joi-password");
+// const joiPassword = joi.extend(joiPasswordExtendCore);
 
 // *schema like model of user
 const UserSchema = new mongoose.Schema({
@@ -19,64 +17,72 @@ const UserSchema = new mongoose.Schema({
 
 //*validation on user inputs register
 function validateUser(user) {
-  const JoiSchema = Joi.object({
-    userName: Joi.string()
-      .min(3)
-      .max(44)
-      .regex(/[a-zA-Z]/)
-      .lowercase(),
-    email: Joi.string()
-      .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-      .max(1024)
-      .required()
-      .trim(),
+  const JoiSchema = joi
+    .object({
+      userName: joi
+        .string()
+        .min(3)
+        .max(44)
+        .regex(/[a-zA-Z]/)
+        .lowercase(),
+      email: joi
+        .string()
+        .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+        .max(1024)
+        .required()
+        .trim(),
 
-    password: JoiPassword.joiPassword
-      .string()
-      .minOfSpecialCharacters(1)
-      .minOfLowercase(5)
-      .minOfUppercase(1)
-      .minOfNumeric(1)
-      .noWhiteSpaces()
-      .required()
-      .messages({
-        "password.minOfUppercase":
-          "{#label} should contain at least {#min} uppercase character",
-        "password.minOfSpecialCharacters":
-          "{#label} should contain at least {#min} special character",
-        "password.minOfLowercase":
-          "{#label} should contain at least {#min} lowercase character",
-        "password.minOfNumeric":
-          "{#label} should contain at least {#min} numeric character",
-        "password.noWhiteSpaces": "{#label} should not contain white spaces",
-      }),
+      password: joiPassword
+        .string()
+        .minOfSpecialCharacters(1)
+        .minOfLowercase(5)
+        .minOfUppercase(1)
+        .minOfNumeric(1)
+        .noWhiteSpaces()
+        .required()
+        .messages({
+          "password.minOfUppercase":
+            "{#label} should contain at least {#min} uppercase character",
+          "password.minOfSpecialCharacters":
+            "{#label} should contain at least {#min} special character",
+          "password.minOfLowercase":
+            "{#label} should contain at least {#min} lowercase character",
+          "password.minOfNumeric":
+            "{#label} should contain at least {#min} numeric character",
+          "password.noWhiteSpaces": "{#label} should not contain white spaces",
+        }),
 
-    department: Joi.string()
-      .min(3)
-      .max(44)
-      .regex(/[a-zA-Z]/)
-      .lowercase(),
-  }).options({ abortEarly: false });
+      department: joi
+        .string()
+        .min(3)
+        .max(44)
+        .regex(/[a-zA-Z]/)
+        .lowercase(),
+    })
+    .options({ abortEarly: false });
 
   return JoiSchema.validate(user);
 }
 
 //*validation on user inputs in login
 function validateUserLogin(user) {
-  const JoiSchema = Joi.object({
-    email: Joi.string()
-      .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-      .min(3)
-      .max(256)
-      .required()
-      .trim(),
+  const JoiSchema = joi
+    .object({
+      email: joi
+        .string()
+        .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+        .min(3)
+        .max(256)
+        .required()
+        .trim(),
 
-    password: JoiPassword.joiPassword
-      .string()
-      .noWhiteSpaces()
-      .required()
-     ,
-  }).options({ abortEarly: false });
+      password: joiPassword
+        .string()
+
+        .noWhiteSpaces()
+        .required(),
+    })
+    .options({ abortEarly: false });
 
   return JoiSchema.validate(user);
 }
