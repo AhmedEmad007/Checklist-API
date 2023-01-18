@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongoose");
 const mongoose = require("mongoose");
 
 const checklistSchema = new mongoose.Schema(
@@ -12,6 +13,9 @@ const checklistSchema = new mongoose.Schema(
         ckecked: { type: Boolean, default: false },
       },
     ],
+    own: {
+      type: Boolean,
+    },
     assignee: [
       { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
     ],
@@ -20,6 +24,7 @@ const checklistSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
+   
   },
   { timestamps: true }
 );

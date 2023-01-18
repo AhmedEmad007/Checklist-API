@@ -28,16 +28,20 @@ router.get("/userChecklist", [auth, checklistCtrl.getUserChecklist]);
 //* ________________________________CREATE_________________________________________
 
 // Creating one Course
-router.post("/newChecklist", admin, checklistCtrl.createChecklist);
+router.post("/newChecklist",  checklistCtrl.createChecklist);
 // router.post('/newCheckOut', [auth,timeCtrl.createCheckOut])
 
 //? ____________________________________UPDATE____________________________________________
 
-// router.patch('/acceptCheckIn', [auth,timeCtrl.updateAcceptanceCheckIn])
+router.patch('/updateChecklist', [auth,checklistCtrl.updateChecklist])
+router.patch('/updateChecks', [auth,checklistCtrl.updateChecks])
+router.patch('/updateRemoveChecklistAssignee', [auth,checklistCtrl.updateRemoveChecklistAssignee])
 
 // router.patch('/acceptCheckOut', [auth,timeCtrl.updateAcceptanceCheckOut])
 
 //! _____________________________________________DELETE_____________________________________
+
+router.delete('/deleteChecklist', [auth,checklistCtrl.deleteChecklist])
 
 //! Deleting course
 

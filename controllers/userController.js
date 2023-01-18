@@ -80,7 +80,7 @@ const userCtrl = {
       user.password = await bcrypt.hash(plainTextPassword, 10);
       //   user.userName = userNameCheck
       //* generate token that have his id
-      const token = jwt.sign({ id: user.id }, "privateKey");
+      const token = jwt.sign({ id: user.id , isAdmin:user.isAdmin }, "privateKey");
 
       //* then save the user
       await user.save();
