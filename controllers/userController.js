@@ -336,6 +336,7 @@ const userCtrl = {
 
       const check = await Users.findById(ObjectId(user.id));
       if (check) {
+       
         let result;
 
         result = await Users.deleteOne({

@@ -5,8 +5,7 @@
   "main": "web.js",
   "scripts": {
     "startDev": "nodemon server.js",
-    "start": "node server.js",
-    "service-worker": "https://js.pusher.com/beams/service-worker.js"
+    "start": "node server.js"
   },
   "engines": {
     "node": "18.x"
