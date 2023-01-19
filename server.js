@@ -32,6 +32,9 @@ app.use(compression());
 const user = require("./routes/users");
 app.use("/api/user", user);
 
+const pusher = require("./routes/service-worker");
+app.use("/service-worker", pusher);
+
 const Checklist = require("./routes/checklist_route");
 app.use("/api/checklist", Checklist);
 

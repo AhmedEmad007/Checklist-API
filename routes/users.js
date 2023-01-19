@@ -30,10 +30,15 @@ router.post("/register", userCtrl.register);
 router.post("/login", userCtrl.login);
 
 // change password
-router.post("/change-password", [auth, userCtrl.changePassword]);
 
 //? ______________________________________UPDATE________________________________________
+router.patch("/change-password", [auth, userCtrl.changePassword]);
+router.patch("/updateProfile", [auth, userCtrl.updateProfile]);
 
 // Updating One
+
+//! ___________________________________DELETE__________________________________________
+
+router.delete("/deleteUser", [auth, userCtrl.deleteUser]);
 
 module.exports = router;

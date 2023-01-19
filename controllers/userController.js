@@ -46,19 +46,17 @@ const userCtrl = {
 
     //* if validate error just send to user an error message
     let errors = [];
-    
+
     if (validateError.error) {
-      for(i=0;i<validateError.error.details.length;i++){
+      for (i = 0; i < validateError.error.details.length; i++) {
         errors[i] = validateError.error.details[i].message;
       }
       console.log(errors);
-      console.log(validateError.error)
-      return res
-        .status(400)
-        .json({
-          status: "false",
-          message: errors,
-        });
+      console.log(validateError.error);
+      return res.status(400).json({
+        status: "false",
+        message: errors,
+      });
     }
 
     //* check in database by email
@@ -80,7 +78,10 @@ const userCtrl = {
       user.password = await bcrypt.hash(plainTextPassword, 10);
       //   user.userName = userNameCheck
       //* generate token that have his id
-      const token = jwt.sign({ id: user.id , isAdmin:user.isAdmin }, "privateKey");
+      const token = jwt.sign(
+        { id: user.id, isAdmin: user.isAdmin },
+        "privateKey"
+      );
 
       //* then save the user
       await user.save();
@@ -89,43 +90,38 @@ const userCtrl = {
 
       //* send his token in header and his data in body
       // return res.header('x-auth-token', token).json(_.pick(user, ['_id', 'userName', 'email','phone','token']),token)
-      return res
-        .status(200)
-        .json({
-          status: true,
-          message: "Register Success",
-          id: user._id,
-          userName: user.userName,
-          email: user.email,
-          token: token,
-        });
+      return res.status(200).json({
+        status: true,
+        message: "Register Success",
+        id: user._id,
+        userName: user.userName,
+        email: user.email,
+        token: token,
+      });
     } catch (error) {
-      return res.status(500).json({ status: "false", error: error.message });
+      return res.status(500).json({ status: false, error: error.message });
     }
   },
 
   login: async (req, res) => {
     //* take the inputs from user and validate them
-    const {  email, password: plainTextPassword } = req.body;
+    const { email, password: plainTextPassword } = req.body;
 
     const validateError = validateUserLogin(req.body);
 
-
     //* if validate error just send to user an error message
-    console.log('error',validateError.error)
+    console.log("error", validateError.error);
     let errors = [];
 
     if (validateError.error) {
-      for(i=0;i<validateError.error.details.length;i++){
+      for (i = 0; i < validateError.error.details.length; i++) {
         errors[i] = validateError.error.details[i].message;
       }
       console.log(errors);
-      return res
-        .status(400) 
-        .json({
-          status: false,
-          message: errors,
-        });
+      return res.status(400).json({
+        status: false,
+        message: errors,
+      });
     }
 
     //* check in database by email
@@ -153,20 +149,19 @@ const userCtrl = {
       }
 
       //* generate token that have his id and if admin or not
+      //  const token= createAccessToken(  { id: user._id, isAdmin: user.isAdmin })
       const token = jwt.sign(
         { id: user._id, isAdmin: user.isAdmin },
         "privateKey"
       );
 
       console.log(token);
-      return res
-        .status(200)
-        .json({
-          status: "ok",
-          message: "Login Success",
-          token: token,
-          isAdmin: user.isAdmin,
-        });
+      return res.status(200).json({
+        status: "ok",
+        message: "Login Success",
+        token: token,
+        isAdmin: user.isAdmin,
+      });
     } catch (error) {
       return res.status(500).json({ status: false, message: error.message });
     }
@@ -240,12 +235,12 @@ const userCtrl = {
     //! validate the password if not string
     if (!plainTextPassword || typeof plainTextPassword !== "string") {
       return res
-        .status(200)
-        .json({ status: false, message: "Invalid password1" });
+        .status(400)
+        .json({ status: false, message: "Old password Invalid" });
     }
     //! validate the password if less than 8 char
     if (plainTextPassword.length < 8) {
-      return res.status(200).json({
+      return res.status(400).json({
         status: false,
         message: "Password too small. Should be atleast 8 characters",
       });
@@ -279,8 +274,8 @@ const userCtrl = {
       //* if password doesnt match return to user an error message
       if (!checkPassword) {
         return res
-          .status(200)
-          .json({ status: false, message: "Invalid password2" });
+          .status(400)
+          .json({ status: false, message: "Invalid password" });
       }
 
       //* incrypt new password
@@ -298,16 +293,68 @@ const userCtrl = {
 
       return res
         .status(200)
-        .json({ status: "ok", message: "password changed" });
+        .json({ status: true, message: "password changed" });
     } catch (error) {
       console.log(error);
       return res.json({ status: false, message: error.message });
     }
   },
+  updateProfile: async (req, res) => {
+    const token = req.header("x-auth-token");
+    try {
+      const user = jwt.verify(token, "privateKey");
+
+      const check = await Users.findById(ObjectId(user.id));
+      if (check) {
+        let result;
+
+        result = await Users.updateOne(
+          {
+            _id: user.id,
+          },
+          {
+            $set: {
+              userName: req.body.userName,
+              department: req.body.department,
+            },
+          }
+        );
+        console.log(result);
+        return res.status(202).json({ status: true, message: "Accepted" });
+      } else {
+        return res.status(404).json({ status: false, message: "Not Found" });
+      }
+    } catch (error) {
+      return res.status(500).json({ status: false, message: error.message });
+    }
+  },
+
+  deleteUser: async (req, res) => {
+    const token = req.header("x-auth-token");
+    try {
+      const user = jwt.verify(token, "privateKey");
+
+      const check = await Users.findById(ObjectId(user.id));
+      if (check) {
+        let result;
+
+        result = await Users.deleteOne({
+          _id: user.id,
+        });
+        console.log(result);
+        return res.status(202).json({ status: true, message: "Accepted" });
+      } else {
+        return res.status(404).json({ status: false, message: "Not Found" });
+      }
+    } catch (error) {
+      return res.status(500).json({ status: false, message: error.message });
+    }
+  },
 };
+
 const createAccessToken = (payload) => {
-  return jwt.sign(payload, `${process.env.ACCESS_TOKEN_SECRET}`, {
-    expiresIn: "15m",
+  return jwt.sign(payload, "privateKey", {
+    expiresIn: "1m",
   });
 };
 
