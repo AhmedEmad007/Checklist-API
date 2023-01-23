@@ -67,7 +67,7 @@ const userCtrl = {
     if (user) {
       return res
         .status(400)
-        .json({ status: false, message: "email already in use" });
+        .json({ status: false, message:[ "email already in use"] });
     }
     try {
       //* take from user userName , email and password and not care for any value else
@@ -92,14 +92,14 @@ const userCtrl = {
       // return res.header('x-auth-token', token).json(_.pick(user, ['_id', 'userName', 'email','phone','token']),token)
       return res.status(200).json({
         status: true,
-        message: "Register Success",
+        message: ["Register Success"],
         id: user._id,
         userName: user.userName,
         email: user.email,
         token: token,
       });
     } catch (error) {
-      return res.status(500).json({ status: false, error: error.message });
+      return res.status(500).json({ status: false, message: error.message });
     }
   },
 
@@ -131,7 +131,7 @@ const userCtrl = {
     if (!user) {
       return res
         .status(400)
-        .json({ status: false, message: "Invalid email or password" });
+        .json({ status: false, message: ["Invalid email or password"] });
     }
 
     try {
@@ -145,7 +145,7 @@ const userCtrl = {
       if (!checkPassword) {
         return res
           .status(400)
-          .json({ status: false, message: "Invalid email or password" });
+          .json({ status: false, message: ["Invalid email or password" ]});
       }
 
       //* generate token that have his id and if admin or not
@@ -158,7 +158,7 @@ const userCtrl = {
       console.log(token);
       return res.status(200).json({
         status: "ok",
-        message: "Login Success",
+        message: ["Login Success"],
         token: token,
         isAdmin: user.isAdmin,
       });
