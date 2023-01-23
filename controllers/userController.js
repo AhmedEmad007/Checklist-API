@@ -54,7 +54,7 @@ const userCtrl = {
       console.log(errors);
       console.log(validateError.error);
       return res.status(400).json({
-        status: "false",
+        status: false,
         message: errors,
       });
     }
