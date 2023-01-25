@@ -7,8 +7,7 @@ const logger = require("./config/logger");
 const app = express();
 const compression = require("compression");
 
-//app.use(cors());
-//app.use(fileUpoad({ useTempFiles: true ,parseNested:true}));
+
 
 //* initial start
 app.use(bodyParser.json());
