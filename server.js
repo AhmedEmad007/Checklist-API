@@ -14,15 +14,29 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 
 //* mongoose connection
-mongoose.set('strictQuery', true);
 
-mongoose
-  .connect(process.env.DATABASE_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("connected to database"))
-  .catch((error) => logger.error(error));
+
+
+mongoose.set('strictQuery', true);
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.DATABASE_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+}
+// mongoose
+//   .connect(process.env.DATABASE_URL, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   })
+//   .then(() => console.log("connected to database"))
+//   .catch((error) => logger.error(error));
 
 //* copmresed requests
 app.use(compression());
@@ -45,6 +59,13 @@ app.all("*", (req, res, next) => {
 });
 
 //* listen on port 8080 local host
-app.listen(process.env.PORT || 8080, function () {
-  console.log("Expreass server listening on port 8080");
-});
+
+connectDB().then(() => {
+  app.listen(process.env.PORT || 8080, () => {
+      console.log("listening for requests");
+  })
+})
+
+// app.listen(process.env.PORT || 8080, function () {
+//   console.log("Expreass server listening on port 8080");
+// });
