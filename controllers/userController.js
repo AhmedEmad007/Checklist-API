@@ -157,7 +157,7 @@ const userCtrl = {
 
       console.log(token);
       return res.status(200).json({
-        status: "ok",
+        status: true,
         message: ["Login Success"],
         token: token,
         isAdmin: user.isAdmin,
@@ -183,7 +183,7 @@ const userCtrl = {
       console.log(profile);
       return res
         .status(200)
-        .json({ status: "ok", message: "Profile", profile });
+        .json({ status: true, message: "Profile", profile });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: false, message: error.message });
