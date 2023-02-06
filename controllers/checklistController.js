@@ -39,6 +39,7 @@ const checklistCtr = {
       console.log(user.isAdmin);
 
       time = await Checklist.find(
+        
         user.isAdmin == true
           ? { reporter: ObjectId(id), own: ownChecklist }
           : { assignee: ObjectId(id), own: ownChecklist }
@@ -78,7 +79,7 @@ const checklistCtr = {
       const orders = new Checklist({
         checklistName: req.body.checklistName,
         checks: req.body.checks,
-        assignee: ownChecklist == "true" ? ObjectId(id) : req.body.assignee,
+        assignee: ownChecklist == true ? ObjectId(id) : req.body.assignee,
         reporter: ObjectId(id),
         own: req.body.own,
       });
