@@ -63,6 +63,35 @@ const checklistCtr = {
       return res.status(500).json({ status: false, message: err.message });
     }
   },
+  getChecklistById: async (req, res, next) => {
+    const token = req.header("x-auth-token");
+    const checklistId = req.query.checklistId;
+
+    try {
+      const user = jwt.verify(token, "privateKey");
+      const id = user.id;
+      console.log(id);
+
+      time = await Checklist.findOne({_id:ObjectId(checklistId)} )
+        .populate(
+          "assignee reporter",
+          "-__v -email -isAdmin -password -checklist"
+        )
+        .select("-__v");
+
+      if (!time) {
+        return res
+          .status(404)
+          .json({ status: false, message: "Cannot find checklists" });
+      }
+
+      return res
+        .status(200)
+        .json({ status: true, message: "Success", checklist: time });
+    } catch (err) {
+      return res.status(500).json({ status: false, message: err.message });
+    }
+  },
 
   // * ______________________________________CREATE FUNCTION__________________________
 

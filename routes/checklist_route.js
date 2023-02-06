@@ -12,6 +12,7 @@ const checklistCtrl = require("../controllers/checklistController");
 // get CheckIn middleware
 router.get("/allChecklist", checklistCtrl.getChecklist);
 router.get("/userChecklist", [auth, checklistCtrl.getUserChecklist]);
+router.get("/checklistById", [auth, checklistCtrl.getChecklistById]);
 // get CheckOut middleware
 // router.get('/allCheckOut',timeCtrl.getCheckOut)
 
