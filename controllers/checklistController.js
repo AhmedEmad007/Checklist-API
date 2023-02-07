@@ -219,35 +219,32 @@ const checklistCtr = {
       const user = jwt.verify(token, "privateKey");
 
       const check = await Checklist.findById(ObjectId(id));
+   
 
       if (check) {
-        if (check.reporter == user.id) {
-          const result = await Checklist.updateOne(
-            {
-              _id: req.body.id,
-              "checks._id": req.body.checksId,
+        const   result = await Checklist.updateOne(
+          {
+            _id:req.body.id,
+            "checks": { "$elemMatch": { "_id":  req.body.checksId  }}
+            // "checks._id": req.body.checksId ,
+          },
+          {
+            $set: {
+              "checks.$.ckecked": req.body.ckecked
+              // checks: {
+                
+              //   ckecked: req.body.ckecked,
+              // },
             },
-            {
-              $set: {
-                checks: {
-                  title: req.body.title,
-                  description: req.body.description,
-                  ckecked: req.body.ckecked,
-                },
-              },
-            }
-          );
-          console.log(result);
-          return res.json({ status: true, message: "Accepted" });
-        } else {
-          return res
-            .status(403)
-            .json({ status: false, message: "You are not allowed" });
-        }
+          }
+        );
+        console.log(result);
+        return res.json({ status: true, message: "Accepted" });
       } else {
         return res.status(404).json({ status: false, message: "not found" });
       }
     } catch (error) {
+      console.log(error);
       return res.status(400).json({ status: false, message: error.message });
     }
   },
@@ -297,18 +294,19 @@ const checklistCtr = {
               }
             );
           }else if (updateCheck ==  'true'){
-            result = await Checklist.updateOne(
+            const   result = await Checklist.updateOne(
               {
-                _id: req.body.id,
-                "checks._id": req.body.checksId,
+                _id:req.body.id,
+                "checks": { "$elemMatch": { "_id":  req.body.checksId  }}
+                // "checks._id": req.body.checksId ,
               },
               {
                 $set: {
-                  checks: {
-                    title: req.body.title,
-                    description: req.body.description,
-                    ckecked: req.body.ckecked,
-                  },
+                  "checks.$.ckecked": req.body.ckecked
+                  // checks: {
+                    
+                  //   ckecked: req.body.ckecked,
+                  // },
                 },
               }
             );
