@@ -193,8 +193,8 @@ const userCtrl = {
   allUsers: async (req, res) => {
     try {
       const users = await Users.find()
-        .populate("checklist", "-__v -password ")
-        .select("-password -__v ");
+        
+        .select("-password -__v -checklist");
       return res
         .status(200)
         .json({ status: true, message: "get users", users });
