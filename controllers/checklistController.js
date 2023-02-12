@@ -78,7 +78,15 @@ const checklistCtr = {
           "-__v -email -isAdmin -password -checklist"
         )
         .select("-__v");
-
+        let count  =0;
+        let lengthChecked = time.checks.length;
+        for(let i = 0;i<time.checks.length;i++){
+          if(time.checks[i].ckecked == true){
+            count++;
+           
+          }
+        }
+        console.log(count);
       if (!time) {
         return res
           .status(404)
@@ -87,7 +95,7 @@ const checklistCtr = {
 
       return res
         .status(200)
-        .json({ status: true, message: "Success", checklist: time });
+        .json({ status: true, message: "Success", checklist: time ,length:lengthChecked ,checkedCount:count});
     } catch (err) {
       return res.status(500).json({ status: false, message: err.message });
     }
