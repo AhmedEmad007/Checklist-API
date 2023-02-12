@@ -301,26 +301,39 @@ const userCtrl = {
   },
   updateProfile: async (req, res) => {
     const token = req.header("x-auth-token");
+    const userName = req.query.userName;
     try {
       const user = jwt.verify(token, "privateKey");
 
       const check = await Users.findById(ObjectId(user.id));
       if (check) {
         let result;
-
-        result = await Users.updateOne(
-          {
-            _id: user.id,
-          },
-          {
-            $set: {
-              userName: req.body.userName,
-              department: req.body.department,
-            },
+          if(userName == 'true'){
+            result = await Users.updateOne(
+              {
+                _id: user.id,
+              },
+              {
+                $set: {
+                  userName: req.body.userName
+                },
+              }
+            );
+      
+          }else{
+            result = await Users.updateOne(
+              {
+                _id: user.id,
+              },
+              {
+                $set: {
+                  department: req.body.department
+                },
+              }
+            );
           }
-        );
-        console.log(result);
-        return res.status(202).json({ status: true, message: "Accepted" });
+          console.log(result);
+          return res.status(202).json({ status: true, message: "Accepted" });
       } else {
         return res.status(404).json({ status: false, message: "Not Found" });
       }
