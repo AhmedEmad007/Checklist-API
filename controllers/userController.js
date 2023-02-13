@@ -303,6 +303,8 @@ const userCtrl = {
     const token = req.header("x-auth-token");
     const userName = req.query.userName;
     const noId = req.query.noId;
+    const department = req.query.department;
+
 
     try {
       const user = jwt.verify(token, "privateKey");
@@ -333,7 +335,7 @@ const userCtrl = {
                 },
               }
             );
-          }else{
+          }else if(department == 'true'){
             result = await Users.updateOne(
               {
                 _id: user.id,
