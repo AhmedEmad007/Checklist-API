@@ -302,6 +302,8 @@ const userCtrl = {
   updateProfile: async (req, res) => {
     const token = req.header("x-auth-token");
     const userName = req.query.userName;
+    const noId = req.query.noId;
+
     try {
       const user = jwt.verify(token, "privateKey");
 
@@ -320,6 +322,17 @@ const userCtrl = {
               }
             );
       
+          }else if(noId == 'true'){
+            result = await Users.updateOne(
+              {
+                _id: user.id,
+              },
+              {
+                $set: {
+                  noId: req.body.noId
+                },
+              }
+            );
           }else{
             result = await Users.updateOne(
               {
