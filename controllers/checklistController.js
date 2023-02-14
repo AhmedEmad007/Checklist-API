@@ -123,10 +123,16 @@ const checklistCtr = {
 
       newOrder = await orders.save();
 
+      getChecklist = await Checklist.findOne({_id:ObjectId(newOrder.id)} )
+      .populate(
+        "assignee reporter",
+        "-__v -email -isAdmin -password -checklist"
+      )
+      .select("-__v");
       // res.newtime = newtime
       return res
         .status(201)
-        .json({ status: true, message: "Success", checklist: newOrder });
+        .json({ status: true, message: "Success", checklist: getChecklist});
     } catch (err) {
       console.log(err);
       return res.status(400).json({ status: false, message: err });
