@@ -71,7 +71,7 @@ const userCtrl = {
     }
     try {
       //* take from user userName , email and password and not care for any value else
-      user = new Users(_.pick(req.body, ["userName", "email", "password"]));
+      user = new Users(_.pick(req.body, ["userName", "email", "password","department"]));
       console.log(phoneId);
 
       //* crypt the password using bcrypt package
