@@ -6,7 +6,7 @@ const joiPassword = joi.extend(joiPasswordExtendCore);
 
 // *schema like model of user
 const UserSchema = new mongoose.Schema({
-  userName: { type: String, lowercase: true, minlength: 3, maxlength: 44 },
+  userName: { type: String, lowercase: false, minlength: 3, maxlength: 44 },
   noId: { type: String, default: "" },
   email: { type: String, lowercase: true, required: true, maxlength: 1024 },
   password: { type: String, required: true, minlength: 8, maxlength: 1024 },

@@ -46,7 +46,9 @@ app.use(helmet());
 app.use(morgan('combined'));
 //* copmresed requests
 app.use(compression());
-
+app.use(
+  cors()
+);
 
 //* import user routes
 const user = require("./routes/users");
