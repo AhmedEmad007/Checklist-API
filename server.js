@@ -8,6 +8,7 @@ const app = express();
 const compression = require("compression");
 const morgan = require("morgan");
 const helmet = require("helmet");
+const cors = require("cors");
 
 
 
