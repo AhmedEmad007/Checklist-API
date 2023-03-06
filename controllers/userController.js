@@ -38,6 +38,7 @@ const userCtrl = {
       password: plainTextPassword,
       phone,
       phoneId,
+      company,
     } = req.body;
     // console.log(userName.replace(/\s+/g, ''))
     //   let userNameCheck =userName.replace(/\s+/g, '')
@@ -71,7 +72,7 @@ const userCtrl = {
     }
     try {
       //* take from user userName , email and password and not care for any value else
-      user = new Users(_.pick(req.body, ["userName", "email", "password","department"]));
+      user = new Users(_.pick(req.body, ["userName", "email", "password","department","company"]));
       console.log(phoneId);
 
       //* crypt the password using bcrypt package
@@ -96,6 +97,7 @@ const userCtrl = {
         id: user._id,
         userName: user.userName,
         email: user.email,
+        company: user.company,
         token: token,
       });
     } catch (error) {
@@ -177,7 +179,7 @@ const userCtrl = {
 
       //* find the user info by his id and not show the password at response
       const profile = await Users.findById(id)
-        .populate("checklist", "-__v")
+        .populate("company", "-__v")
         .select("-password -__v ");
       console.log(req.params.id);
       console.log(profile);
@@ -191,13 +193,14 @@ const userCtrl = {
   },
 
   allUsers: async (req, res) => {
+    
+    companyId = req.query.companyId;
     try {
-      const users = await Users.find()
-        
-        .select("-password -__v -checklist");
+      const count = await Users.count({company:companyId})
+      const users = await Users.find({company:companyId}).populate('company','-__v').select("-password -__v ");
       return res
         .status(200)
-        .json({ status: true, message: "get users", users });
+        .json({ status: true, message: "get users Success", users ,"count":count });
     } catch (err) {
       return res.status(500).json({ status: false, message: err.message });
     }

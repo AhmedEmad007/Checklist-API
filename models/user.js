@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
   department: { type: String, lowercase: true, minlength: 3, maxlength: 44 },
   isAdmin: { type: Boolean, default: false },
 
-  checklist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Checklist" }],
+  company: { type: mongoose.Schema.Types.ObjectId, ref: "Company",required:true },
 });
 
 //*validation on user inputs register
@@ -59,6 +59,9 @@ function validateUser(user) {
         .max(44)
         .regex(/[a-zA-Z]/)
         .lowercase(),
+
+        company: joi
+        .string(),
     })
     .options({ abortEarly: false });
 
