@@ -163,6 +163,8 @@ const userCtrl = {
         message: ["Login Success"],
         token: token,
         isAdmin: user.isAdmin,
+        company: user.company,
+
       });
     } catch (error) {
       return res.status(500).json({ status: false, message: error.message });
