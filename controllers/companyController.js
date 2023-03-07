@@ -156,7 +156,11 @@ const companyCtr = {
         .status(404)
         .json({ status: false, message: ["Company Not Found"] });
     }
-
+    if (!companyCheck.aproved) {
+      return res
+        .status(401)
+        .json({ status: false, message: ["Not Accepted yet!"] });
+    }
     try {
       console.log(companyCheck.password);
       //* compare between password and crypted password of user
