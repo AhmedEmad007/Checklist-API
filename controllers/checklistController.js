@@ -48,7 +48,7 @@ const checklistCtr = {
       )
         .populate(
           "assignee reporter",
-          "-__v -email -isAdmin -password -checklist"
+          "-__v -email -isAdmin -password"
         )
         .select("-__v");
 

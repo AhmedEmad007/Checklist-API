@@ -1,7 +1,11 @@
 const Company = require("../models/company_model");
 const { validateCompany } = require("../models/company_model");
+const { validateCompanyLogin } = require("../models/company_model");
+
 
 const jwt = require("jsonwebtoken");
+const _ = require("lodash");
+const bcrypt = require("bcryptjs");
 
 const mongoose = require("mongoose");
 
@@ -64,7 +68,14 @@ const companyCtr = {
   // * ______________________________________CREATE FUNCTION__________________________
 
   createCompany: async (req, res, next) => {
- 
+    const {
+      companyName,
+
+      website,
+      password: plainTextPassword,
+      phoneNumber,
+    
+    } = req.body;
     const validateError = validateCompany(req.body);
     let errors = [];
     if (validateError.error) {
@@ -78,18 +89,31 @@ const companyCtr = {
         message: errors,
       });
     }
-    let newCompany;
+
+    let newCompany = await Company.findOne({ companyName }).lean();
+
+    //* if exist return an error messge
+    if (newCompany) {
+      return res
+        .status(400)
+        .json({ status: false, message:[ "Compnay already in use"] });
+    }
+
     try {
 
-    
+      newCompany = new Company(_.pick(req.body, ["companyName", "website", "phoneNumber","password",]));
 
-      const orders = new Company({
-        companyName: req.body.companyName,
-        website: req.body.website,
-        phoneNumber: req.body.phoneNumber,
-      });
+      //* crypt the password using bcrypt package
+      newCompany.password = await bcrypt.hash(plainTextPassword, 10);
+      //   user.userName = userNameCheck
+      //* generate token that have his id
+      const token = jwt.sign(
+        { id: newCompany.id, approved: newCompany.aproved },
+        "privateKey"
+      );
+      await newCompany.save();
 
-      newCompany = await orders.save();
+
 
       // res.newtime = newtime
       return res
@@ -98,6 +122,67 @@ const companyCtr = {
     } catch (err) {
       console.log(err);
       return res.status(400).json({ status: false, message: [err] });
+    }
+  },
+
+  login: async (req, res) => {
+    //* take the inputs from user and validate them
+    const { companyName, password: plainTextPassword } = req.body;
+
+    const validateError = validateCompanyLogin(req.body);
+
+    //* if validate error just send to user an error message
+    console.log("error", validateError.error);
+    let errors = [];
+
+    if (validateError.error) {
+      for (i = 0; i < validateError.error.details.length; i++) {
+        errors[i] = validateError.error.details[i].message;
+      }
+      console.log(errors);
+      return res.status(400).json({
+        status: false,
+        message: errors,
+      });
+    }
+
+    //* check in database by email
+    let companyCheck = await Company.findOne({ companyName }).lean();
+
+    //* if not exist return an error messge
+    if (!companyCheck) {
+      return res
+        .status(404)
+        .json({ status: false, message: ["Company Not Found"] });
+    }
+
+    try {
+      console.log(companyCheck.password)
+      //* compare between password and crypted password of user
+      const checkPassword = await bcrypt.compare(
+        plainTextPassword,
+        companyCheck.password
+      );
+      console.log(checkPassword);
+      //* if password doesnt match return to user an error message
+      if (!checkPassword) {
+        return res
+          .status(400)
+          .json({ status: false, message: ["Invalid company or password" ]});
+      }
+
+      //* generate token that have his id and if admin or not
+      //  const token= createAccessToken(  { id: user._id, isAdmin: user.isAdmin })
+    
+      return res.status(200).json({
+        status: true,
+        message: ["Success"],
+        companyName: companyCheck.companyName,
+        companyId: companyCheck._id,
+
+      });
+    } catch (error) {
+      return res.status(500).json({ status: false, message: error.message });
     }
   },
 

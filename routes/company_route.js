@@ -29,6 +29,8 @@ router.get("/CompanyById",  compCtrl.getCompanyById);
 
 // Creating one Course
 router.post("/newCompany",  compCtrl.createCompany);
+router.post("/login",  compCtrl.login);
+
 // router.post('/newCheckOut', [auth,timeCtrl.createCheckOut])
 
 //? ____________________________________UPDATE____________________________________________
