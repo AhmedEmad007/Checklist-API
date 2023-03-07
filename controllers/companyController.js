@@ -2,7 +2,6 @@ const Company = require("../models/company_model");
 const { validateCompany } = require("../models/company_model");
 const { validateCompanyLogin } = require("../models/company_model");
 
-
 const jwt = require("jsonwebtoken");
 const _ = require("lodash");
 const bcrypt = require("bcryptjs");
@@ -32,25 +31,21 @@ const companyCtr = {
     }
   },
 
-
   getCompanyById: async (req, res, next) => {
     const companyId = req.query.companyId;
 
     try {
+      time = await Company.findOne({ _id: ObjectId(companyId) })
+      .select("-__v");
+      // let count  =0;
+      // let lengthChecked = time.checks.length;
+      // for(let i = 0;i<time.checks.length;i++){
+      //   if(time.checks[i].ckecked == true){
+      //     count++;
 
-
-      time = await Company.findOne({_id:ObjectId(companyId)} )
-        
-        .select("-__v");
-        // let count  =0;
-        // let lengthChecked = time.checks.length;
-        // for(let i = 0;i<time.checks.length;i++){
-        //   if(time.checks[i].ckecked == true){
-        //     count++;
-           
-        //   }
-        // }
-        // console.log(count);
+      //   }
+      // }
+      // console.log(count);
       if (!time) {
         return res
           .status(404)
@@ -74,7 +69,6 @@ const companyCtr = {
       website,
       password: plainTextPassword,
       phoneNumber,
-    
     } = req.body;
     const validateError = validateCompany(req.body);
     let errors = [];
@@ -96,12 +90,13 @@ const companyCtr = {
     if (newCompany) {
       return res
         .status(400)
-        .json({ status: false, message:[ "Compnay already in use"] });
+        .json({ status: false, message: ["Compnay already in use"] });
     }
 
     try {
-
-      newCompany = new Company(_.pick(req.body, ["companyName", "website", "phoneNumber","password",]));
+      newCompany = new Company(
+        _.pick(req.body, ["companyName", "website", "phoneNumber", "password"])
+      );
 
       //* crypt the password using bcrypt package
       newCompany.password = await bcrypt.hash(plainTextPassword, 10);
@@ -113,12 +108,18 @@ const companyCtr = {
       );
       await newCompany.save();
 
-
-
       // res.newtime = newtime
       return res
         .status(201)
-        .json({ status: true, message:[ "Success"], Company: newCompany});
+        .json({
+          status: true,
+          message: ["Success"],
+          id: newCompany.id,
+          companyName: newCompany.companyName,
+          website: newCompany.website,
+          phoneNumber: newCompany.phoneNumber,
+          aproved: newCompany.aproved,
+        });
     } catch (err) {
       console.log(err);
       return res.status(400).json({ status: false, message: [err] });
@@ -157,7 +158,7 @@ const companyCtr = {
     }
 
     try {
-      console.log(companyCheck.password)
+      console.log(companyCheck.password);
       //* compare between password and crypted password of user
       const checkPassword = await bcrypt.compare(
         plainTextPassword,
@@ -168,18 +169,17 @@ const companyCtr = {
       if (!checkPassword) {
         return res
           .status(400)
-          .json({ status: false, message: ["Invalid company or password" ]});
+          .json({ status: false, message: ["Invalid company or password"] });
       }
 
       //* generate token that have his id and if admin or not
       //  const token= createAccessToken(  { id: user._id, isAdmin: user.isAdmin })
-    
+
       return res.status(200).json({
         status: true,
         message: ["Success"],
         companyName: companyCheck.companyName,
         companyId: companyCheck._id,
-
       });
     } catch (error) {
       return res.status(500).json({ status: false, message: error.message });
@@ -280,20 +280,19 @@ const companyCtr = {
       const user = jwt.verify(token, "privateKey");
 
       const check = await Company.findById(ObjectId(id));
-   
 
       if (check) {
-        const   result = await Company.updateOne(
+        const result = await Company.updateOne(
           {
-            _id:req.body.id,
-            "checks": { "$elemMatch": { "_id":  req.body.checksId  }}
+            _id: req.body.id,
+            checks: { $elemMatch: { _id: req.body.checksId } },
             // "checks._id": req.body.checksId ,
           },
           {
             $set: {
-              "checks.$.ckecked": req.body.ckecked
+              "checks.$.ckecked": req.body.ckecked,
               // checks: {
-                
+
               //   ckecked: req.body.ckecked,
               // },
             },
@@ -354,18 +353,18 @@ const companyCtr = {
                 },
               }
             );
-          }else if (updateCheck ==  'true'){
-            const   result = await Company.updateOne(
+          } else if (updateCheck == "true") {
+            const result = await Company.updateOne(
               {
-                _id:req.body.id,
-                "checks": { "$elemMatch": { "_id":  req.body.checksId  }}
+                _id: req.body.id,
+                checks: { $elemMatch: { _id: req.body.checksId } },
                 // "checks._id": req.body.checksId ,
               },
               {
                 $set: {
-                  "checks.$.ckecked": req.body.ckecked
+                  "checks.$.ckecked": req.body.ckecked,
                   // checks: {
-                    
+
                   //   ckecked: req.body.ckecked,
                   // },
                 },
