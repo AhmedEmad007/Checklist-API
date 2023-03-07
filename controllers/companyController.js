@@ -128,7 +128,7 @@ const companyCtr = {
 
   login: async (req, res) => {
     //* take the inputs from user and validate them
-    const { companyName, password: plainTextPassword } = req.body;
+    const { _id, password: plainTextPassword } = req.body;
 
     const validateError = validateCompanyLogin(req.body);
 
@@ -146,9 +146,14 @@ const companyCtr = {
         message: errors,
       });
     }
+    if(!ObjectId.isValid(_id)){
+      return res
+      .status(400)
+      .json({ status: false, message: ["Invalid Company!"] });
+    }
 
     //* check in database by email
-    let companyCheck = await Company.findOne({ companyName }).lean();
+    let companyCheck = await Company.findOne({ _id }).lean();
 
     //* if not exist return an error messge
     if (!companyCheck) {

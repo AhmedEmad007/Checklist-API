@@ -60,8 +60,8 @@ function validateCompany(company) {
 function validateCompanyLogin(user) {
   const JoiSchema = joi
     .object({
-      companyName: joi
-      .string()
+      _id: joi
+      .required()
       ,
 
       password: joiPassword
