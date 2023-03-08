@@ -1,4 +1,7 @@
 const Company = require("../models/company_model");
+const Users = require("../models/user");
+
+
 const { validateCompany } = require("../models/company_model");
 const { validateCompanyLogin } = require("../models/company_model");
 
@@ -35,8 +38,7 @@ const companyCtr = {
     const companyId = req.query.companyId;
 
     try {
-      time = await Company.findOne({ _id: ObjectId(companyId) })
-      .select("-__v");
+      time = await Company.findOne({ _id: ObjectId(companyId) }).select("-__v");
       // let count  =0;
       // let lengthChecked = time.checks.length;
       // for(let i = 0;i<time.checks.length;i++){
@@ -65,13 +67,16 @@ const companyCtr = {
   createCompany: async (req, res, next) => {
     const {
       companyName,
-
       website,
       password: plainTextPassword,
       phoneNumber,
+   
     } = req.body;
+   const  email = req.query.email
     const validateError = validateCompany(req.body);
+
     let errors = [];
+
     if (validateError.error) {
       for (i = 0; i < validateError.error.details.length; i++) {
         errors[i] = validateError.error.details[i].message;
@@ -82,6 +87,15 @@ const companyCtr = {
         status: false,
         message: errors,
       });
+    }
+   //* check in database by email
+    let user = await Users.findOne({ email }).lean();
+
+    //* if not exist return an error messge
+    if (!user) {
+      return res
+        .status(400)
+        .json({ status: false, message: ["Invalid email or password"] });
     }
 
     let newCompany = await Company.findOne({ companyName }).lean();
@@ -107,19 +121,29 @@ const companyCtr = {
         "privateKey"
       );
       await newCompany.save();
+      console.log(user._id);
 
+     const result= await Users.updateOne(
+        {
+          _id: user._id,
+        },
+        {
+          $set: {
+            isAdmin:true
+          },
+        }
+      );
+      console.log(result);
       // res.newtime = newtime
-      return res
-        .status(201)
-        .json({
-          status: true,
-          message: ["Success"],
-          id: newCompany.id,
-          companyName: newCompany.companyName,
-          website: newCompany.website,
-          phoneNumber: newCompany.phoneNumber,
-          aproved: newCompany.aproved,
-        });
+      return res.status(201).json({
+        status: true,
+        message: ["Success"],
+        id: newCompany.id,
+        companyName: newCompany.companyName,
+        website: newCompany.website,
+        phoneNumber: newCompany.phoneNumber,
+        aproved: newCompany.aproved,
+      });
     } catch (err) {
       console.log(err);
       return res.status(400).json({ status: false, message: [err] });
@@ -146,10 +170,10 @@ const companyCtr = {
         message: errors,
       });
     }
-    if(!ObjectId.isValid(_id)){
+    if (!ObjectId.isValid(_id)) {
       return res
-      .status(400)
-      .json({ status: false, message: ["Invalid Company!"] });
+        .status(400)
+        .json({ status: false, message: ["Invalid Company!"] });
     }
 
     //* check in database by email

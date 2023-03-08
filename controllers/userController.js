@@ -73,7 +73,6 @@ const userCtrl = {
     try {
       //* take from user userName , email and password and not care for any value else
       user = new Users(_.pick(req.body, ["userName", "email", "password","department","company"]));
-      console.log(phoneId);
 
       //* crypt the password using bcrypt package
       user.password = await bcrypt.hash(plainTextPassword, 10);
@@ -309,6 +308,8 @@ const userCtrl = {
     const userName = req.query.userName;
     const noId = req.query.noId;
     const department = req.query.department;
+    const isAdmin = req.query.isAdmin;
+
 
 
     try {
@@ -348,6 +349,17 @@ const userCtrl = {
               {
                 $set: {
                   department: req.body.department
+                },
+              }
+            );
+          }else if(isAdmin == 'true'){
+            result = await Users.updateOne(
+              {
+                _id: user.id,
+              },
+              {
+                $set: {
+                  isAdmin: req.body.isAdmin
                 },
               }
             );
