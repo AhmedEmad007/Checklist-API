@@ -71,7 +71,8 @@ const userCtrl = {
         .json({ status: false, message:[ "email already in use"] });
     }
     try {
-      if(company != ''){
+      console.log("Company herrrrrrrrrrrrrrrrrrrrrrr",req.body.company);
+      if(company != ' '){
               //* take from user userName , email and password and not care for any value else
       user = new Users(_.pick(req.body, ["userName", "email", "password","department","company"]));
       }else{

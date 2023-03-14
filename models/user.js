@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const joi = require("joi");
 
 const { joiPasswordExtendCore } = require("joi-password");
+const Joi = require("joi");
 const joiPassword = joi.extend(joiPasswordExtendCore);
 
 // *schema like model of user
@@ -13,7 +14,11 @@ const UserSchema = new mongoose.Schema({
   department: { type: String, lowercase: true, minlength: 3, maxlength: 44 },
   isAdmin: { type: Boolean, default: false },
 
-  company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Company",
+    required: false,
+  },
 });
 
 //*validation on user inputs register
@@ -59,9 +64,7 @@ function validateUser(user) {
         .max(44)
         .regex(/[a-zA-Z]/)
         .lowercase(),
-
-        company: joi
-        .string(),
+      company: joi.string(),
     })
     .options({ abortEarly: false });
 
