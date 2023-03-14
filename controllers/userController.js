@@ -71,8 +71,14 @@ const userCtrl = {
         .json({ status: false, message:[ "email already in use"] });
     }
     try {
-      //* take from user userName , email and password and not care for any value else
+      if(!company){
+              //* take from user userName , email and password and not care for any value else
       user = new Users(_.pick(req.body, ["userName", "email", "password","department","company"]));
+      }else{
+                      //* take from user userName , email and password and not care for any value else
+      user = new Users(_.pick(req.body, ["userName", "email", "password","department"]));
+      }
+
 
       //* crypt the password using bcrypt package
       user.password = await bcrypt.hash(plainTextPassword, 10);

@@ -43,7 +43,7 @@ router.patch('/updateRemoveCompanyAssignee', [auth,compCtrl.updateRemoveCompanyA
 
 //! _____________________________________________DELETE_____________________________________
 
-router.delete('/deleteCompany', [auth,compCtrl.deleteCompany])
+router.delete('/deleteCompany', [auth,admin,compCtrl.deleteCompany])
 
 //! Deleting course
 
