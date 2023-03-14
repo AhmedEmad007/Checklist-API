@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
   department: { type: String, lowercase: true, minlength: 3, maxlength: 44 },
   isAdmin: { type: Boolean, default: false },
 
-  company: { type: mongoose.Schema.Types.ObjectId, ref: "Company",required:true },
+  company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
 });
 
 //*validation on user inputs register
