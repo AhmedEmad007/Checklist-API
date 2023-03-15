@@ -72,31 +72,31 @@ const companyCtr = {
       phoneNumber,
    
     } = req.body;
-   const  email = req.query.email
-    const validateError = validateCompany(req.body);
+  //  const  email = req.query.email
+  //   const validateError = validateCompany(req.body);
 
-    let errors = [];
+  //   let errors = [];
 
-    if (validateError.error) {
-      for (i = 0; i < validateError.error.details.length; i++) {
-        errors[i] = validateError.error.details[i].message;
-      }
-      console.log(errors);
-      console.log(validateError.error);
-      return res.status(400).json({
-        status: false,
-        message: errors,
-      });
-    }
-   //* check in database by email
-    let user = await Users.findOne({ email }).lean();
+  //   if (validateError.error) {
+  //     for (i = 0; i < validateError.error.details.length; i++) {
+  //       errors[i] = validateError.error.details[i].message;
+  //     }
+  //     console.log(errors);
+  //     console.log(validateError.error);
+  //     return res.status(400).json({
+  //       status: false,
+  //       message: errors,
+  //     });
+  //   }
+  //  //* check in database by email
+  //   let user = await Users.findOne({ email }).lean();
 
-    //* if not exist return an error messge
-    if (!user) {
-      return res
-        .status(400)
-        .json({ status: false, message: ["Invalid email or password"] });
-    }
+  //   //* if not exist return an error messge
+  //   if (!user) {
+  //     return res
+  //       .status(400)
+  //       .json({ status: false, message: ["Invalid email or password"] });
+  //   }
 
     let newCompany = await Company.findOne({ companyName }).lean();
 
@@ -121,19 +121,19 @@ const companyCtr = {
         "privateKey"
       );
       await newCompany.save();
-      console.log(user._id);
+      // console.log(user._id);
 
-     const result= await Users.updateOne(
-        {
-          _id: user._id,
-        },
-        {
-          $set: {
-            isAdmin:true
-          },
-        }
-      );
-      console.log(result);
+    //  const result= await Users.updateOne(
+    //     {
+    //       _id: user._id,
+    //     },
+    //     {
+    //       $set: {
+    //         isAdmin:true
+    //       },
+    //     }
+    //   );
+      // console.log(result);
       // res.newtime = newtime
       return res.status(201).json({
         status: true,
