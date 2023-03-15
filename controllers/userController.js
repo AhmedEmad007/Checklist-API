@@ -204,11 +204,22 @@ const userCtrl = {
     
     companyId = req.query.companyId;
     try {
-      const count = await Users.count({company:companyId})
+      if(companyId){
+         const count = await Users.count({company:companyId})
+
       const users = await Users.find({company:companyId}).populate('company','-__v').select("-password -__v ");
       return res
         .status(200)
         .json({ status: true, message: "get users Success", users ,"count":count });
+      }else{
+        const count = await Users.count()
+
+        const users = await Users.find().populate('company','-__v').select("-password -__v ");
+        return res
+          .status(200)
+          .json({ status: true, message: "get users Success", users ,"count":count });
+      }
+     
     } catch (err) {
       return res.status(500).json({ status: false, message: err.message });
     }
