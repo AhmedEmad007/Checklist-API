@@ -306,7 +306,7 @@ const companyCtr = {
   //   }
   // },
 
-  updateChecks: async (req, res) => {
+  acceptOrRejectCompany: async (req, res) => {
     const { id, checksId } = req.body;
     const token = req.header("x-auth-token");
     try {
@@ -314,30 +314,27 @@ const companyCtr = {
 
       const check = await Company.findById(ObjectId(id));
 
+console.log(!(check.aproved))
       if (check) {
-        const result = await Company.updateOne(
-          {
-            _id: req.body.id,
-            checks: { $elemMatch: { _id: req.body.checksId } },
-            // "checks._id": req.body.checksId ,
-          },
-          {
-            $set: {
-              "checks.$.ckecked": req.body.ckecked,
-              // checks: {
-
-              //   ckecked: req.body.ckecked,
-              // },
+     
+          const result = await Company.updateOne(
+            {
+              _id: req.body.id,
             },
-          }
-        );
-        console.log(result);
-        return res.json({ status: true, message: "Accepted" });
+            {
+              $set: {
+                aproved:!(check.aproved),
+               
+              },
+            }
+          );
+          // console.log(result);
+          return res.json({ status: true, message: "Accepted" });
+     
       } else {
         return res.status(404).json({ status: false, message: "not found" });
       }
     } catch (error) {
-      console.log(error);
       return res.status(400).json({ status: false, message: error.message });
     }
   },

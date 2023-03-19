@@ -36,7 +36,7 @@ router.post("/login",  compCtrl.login);
 //? ____________________________________UPDATE____________________________________________
 
 router.patch('/updateCompany', [auth,compCtrl.updateCompany])
-router.patch('/updateChecks', [auth,compCtrl.updateChecks])
+router.patch('/acceptOrRejectCompany', [auth,admin,compCtrl.acceptOrRejectCompany])
 router.patch('/updateRemoveCompanyAssignee', [auth,compCtrl.updateRemoveCompanyAssignee])
 
 // router.patch('/acceptCheckOut', [auth,timeCtrl.updateAcceptanceCheckOut])
